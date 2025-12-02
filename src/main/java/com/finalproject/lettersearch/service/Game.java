@@ -14,7 +14,12 @@ public class Game {
         this.searchFactory = searchFactory;
     }
     public void startGame() {
-        // create a method in the factories that generate the right board
+        this.board = searchFactory.createBoard();
+        this.words = board.getWords();
+    }
+
+    public Board getBoard() {
+        return board;
     }
 
     public boolean wordExists (String selected)
