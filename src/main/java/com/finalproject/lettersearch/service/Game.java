@@ -8,7 +8,7 @@ import com.finalproject.lettersearch.strategy.WordSearchStrategy;
 import java.util.List;
 
 public class Game {
-    private Board board;
+    protected Board board;
     private List<Word> words;
     private WordSearchStrategy strategy;
     private final SearchFactory searchFactory;
