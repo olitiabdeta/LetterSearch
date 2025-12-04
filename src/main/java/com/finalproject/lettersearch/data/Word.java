@@ -18,6 +18,6 @@ public class Word {
     }
 
     public void setFoundState(boolean found) {
-          this.found = found;
+        this.found = found;
     }
 }
