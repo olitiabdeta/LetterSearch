@@ -3,26 +3,21 @@ package com.finalproject.lettersearch.strategy;
 import com.finalproject.lettersearch.data.Board;
 import com.finalproject.lettersearch.data.Word;
 
-public class DiagonalStrategy implements  WordSearchStrategy{
+public class DiagonalStrategy extends  SearchTemplate{
 
     @Override
-    public boolean searchWord(Board board, Word word) {
-        char[][] grid =  board.getBoard();
-        String searchFor = word.getWord();
-        int rows =  grid.length;
-        int cols = grid[0].length;
-        int wordLength = searchFor.length();
-        for (int i = 0; i < rows - wordLength; i++) {
-            for (int j = 0; j < cols - wordLength ; j++) {
-                int k = 0;
-                while (k < wordLength && grid[i +k][j +k] ==  searchFor.charAt(k)) {
-                    k++;
-                }
-                if (k == wordLength) {
-                    return true;
-                }
+    protected boolean matches(char[][] grid, String word, int row, int col) {
+        if (row + word.length() > grid.length || col + word.length() > grid[0].length) {
+            return false;
+        }
+        for (int k = 0; k < word.length(); k++) {
+            if(grid[row+k][col+k] != word.charAt(k)){
+                return false;
             }
         }
-        return false;
+        return true;
     }
+
+
+
 }
