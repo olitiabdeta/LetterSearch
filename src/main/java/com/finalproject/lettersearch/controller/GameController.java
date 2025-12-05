@@ -11,6 +11,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import com.finalproject.lettersearch.data.Difficulty;
 import org.springframework.web.bind.annotation.*;
 import com.finalproject.lettersearch.service.GameStateManager;
+import com.finalproject.lettersearch.data.Board;
 
 import java.util.EnumMap;
 import java.util.HashMap;
@@ -91,7 +92,71 @@ public class GameController {
         return new CheckResultDTO(selected, correct);
     }
 
-     public static class GameDTO{
+    @GetMapping("/state")
+    public GameStateDTO state() {
+        if (game == null || game.getBoard() == null) {
+            throw new IllegalStateException("Game has not been started yet.");
+        }
+
+        GameStateManager gsm = GameStateManager.getInstance();
+
+        Board currentBoard = gsm.getCurrentBoard();
+        String currentTheme = gsm.getCurrentTheme();
+
+        // From observers
+        List<String> foundWords = game.getListObserver().getFoundWords();
+        int score = game.getScoreObserver().getScore();
+
+        // From GameStateManager singleton
+        List<Word> remainingWords = gsm.getWordsRemaining();
+
+        char[][] boardGrid = currentBoard != null ? currentBoard.getBoard() : null;
+
+        return new GameStateDTO(boardGrid, foundWords, remainingWords, currentTheme, score);
+    }
+
+    public static class GameStateDTO {
+        private final char[][] board;
+        private final List<String> foundWords;
+        private final List<Word> remainingWords;
+        private final String theme;
+        private final int score;
+
+        public GameStateDTO(char[][] board,
+                            List<String> foundWords,
+                            List<Word> remainingWords,
+                            String theme,
+                            int score) {
+            this.board = board;
+            this.foundWords = foundWords;
+            this.remainingWords = remainingWords;
+            this.theme = theme;
+            this.score = score;
+        }
+
+        public char[][] getBoard() {
+            return board;
+        }
+
+        public List<String> getFoundWords() {
+            return foundWords;
+        }
+
+        public List<Word> getRemainingWords() {
+            return remainingWords;
+        }
+
+        public String getTheme() {
+            return theme;
+        }
+
+        public int getScore() {
+            return score;
+        }
+    }
+
+
+    public static class GameDTO{
         private final char[][] board;
         private final List<Word> words;
         public GameDTO(char[][] board, List<Word> words) {
