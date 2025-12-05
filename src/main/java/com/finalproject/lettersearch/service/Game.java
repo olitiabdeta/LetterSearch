@@ -5,6 +5,7 @@ import com.finalproject.lettersearch.data.Word;
 import com.finalproject.lettersearch.factory.SearchFactory;
 import com.finalproject.lettersearch.strategy.SearchTemplate;
 import java.util.List;
+import com.finalproject.lettersearch.service.GameStateManager;
 
 public class Game {
     protected Board board;
@@ -30,6 +31,8 @@ public class Game {
                 if (strategy != null && strategy.search(board, word))
                 {
                     word.setFoundState(true);
+                    //tell the global manager
+                    GameStateManager.getInstance().markWordFound(word);
                     return true;
                 }
 

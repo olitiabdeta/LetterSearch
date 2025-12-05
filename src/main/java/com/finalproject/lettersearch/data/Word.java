@@ -6,7 +6,7 @@ public class Word {
 
     public Word(String word, boolean found) {
         this.word = word;
-        this.found = false;
+        this.found = found;
     }
 
     public String getWord() {
