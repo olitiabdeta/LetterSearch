@@ -131,6 +131,7 @@
     <div>
         <table id="boardTable"></table>
     </div>
+    <div id="score" class="status">Score: 0</div>
 
     <!-- Word List -->
     <div class="word-list-container">
@@ -155,6 +156,8 @@
     const wordListElem = document.getElementById("wordList");
     const guessInput = document.getElementById("guessInput");
     const statusElem = document.getElementById("status");
+    const scoreElem = document.getElementById("score");
+
 
     let currentWords = [];
 
@@ -287,6 +290,7 @@
                 if (data.correct) {
                     markWordFound(data.selected, data.positions);
                     setStatus(`"${data.selected}" is correct!`, "success");
+                    scoreElem.textContent = `Score: ${data.score}`;
                 } else {
                     setStatus(`"${data.selected}" is not in the puzzle.`, "error");
                 }

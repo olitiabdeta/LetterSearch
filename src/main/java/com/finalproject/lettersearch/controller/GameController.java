@@ -83,12 +83,14 @@ public class GameController {
 
     @GetMapping("/check")
     public CheckResultDTO check(@RequestParam String selected) {
+
         if (game == null) {
             throw new IllegalStateException("Game has not been started yet.");
         }
 
         boolean correct = game.wordExists(selected);
 
+        int userScore =  game.getScoreObserver().getScore();
         List<List<Integer>> positions = new ArrayList<>();
         if (correct){
             Word foundWord = game.getWords().stream().filter(w ->  w.getWord().equalsIgnoreCase(selected) )
@@ -109,7 +111,7 @@ public class GameController {
         }
 
 
-        return new CheckResultDTO(selected, correct, positions);
+        return new CheckResultDTO(selected, correct, positions, userScore);
     }
 
     @GetMapping("/state")
@@ -195,11 +197,13 @@ public class GameController {
     public static class CheckResultDTO {
         private final String selected;
         private final boolean correct;
+        private final int score;
         private final List<List<Integer>> positions;
-        public CheckResultDTO(String selected, boolean correct, List<List<Integer>> positions) {
+        public CheckResultDTO(String selected, boolean correct, List<List<Integer>> positions, int score) {
             this.selected = selected;
             this.correct = correct;
             this.positions = positions;
+            this.score = score;
         }
 
         public List<List<Integer>> getPositions() {
@@ -212,6 +216,9 @@ public class GameController {
 
         public boolean isCorrect() {
             return correct;
+        }
+        public int getScore() {
+            return score;
         }
     }
 
