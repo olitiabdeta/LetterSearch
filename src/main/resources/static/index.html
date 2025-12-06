@@ -178,13 +178,11 @@
 
         board.forEach(row => {
             const tr = document.createElement("tr");
-
-            // Spring often serializes char[][] as String[]; handle both
             const chars = Array.isArray(row) ? row : row.toString().split("");
 
             chars.forEach(cell => {
                 const td = document.createElement("td");
-                td.textContent = cell === 'X' ? "" : cell;  // hide filler X if you use them
+                td.textContent = cell;
                 tr.appendChild(td);
             });
 
@@ -192,27 +190,49 @@
         });
     }
 
-    // Render the list of words
-    function renderWords(words) {
-        wordListElem.innerHTML = "";
-        currentWords = words.slice(); // copy
 
-        currentWords.forEach(w => {
-            const li = document.createElement("li");
-            li.textContent = w.word;
-            li.dataset.word = w.word.toUpperCase();
-            wordListElem.appendChild(li);
+
+    function resetHighlights() {
+        Array.from(boardTable.rows).forEach(row => {
+            Array.from(row.cells).forEach(cell => {
+                cell.style.backgroundColor = "white";
+                cell.style.color = "black";
+            });
         });
     }
 
+        // Render the list of words
+    function renderWords(numWords) {
+        wordListElem.innerHTML = "";
+        currentWords = [];
+
+        for (let i = 0; i< numWords; i++){
+            const li = document.createElement("li");
+            li.textContent = "???";
+            li.dataset.word = "";
+            wordListElem.appendChild(li);
+            currentWords.push(li);
+        }
+    }
+
     // Mark a word as found in the list
-    function markWordFound(word) {
+    function markWordFound(word, positions) {
         const target = word.toUpperCase();
         const items = wordListElem.querySelectorAll("li");
-        items.forEach(li => {
-            if (li.dataset.word === target) {
+        for (let li of items) {
+            if (!li.dataset.word) {
+                li.textContent = target;
+                li.dataset.word = target;
                 li.classList.add("word-found");
+                break;
             }
+        }
+        positions.forEach(pos =>
+        {
+            const[row, col] = pos;
+            const cell = boardTable.rows[row].cells[col];
+            cell.style.backgroundColor = "lightgreen";
+            cell.style.color = "black";
         });
     }
 
@@ -237,8 +257,9 @@
             })
             .then(data => {
                 console.log("GAME DATA FROM /start:", data); // debug
+                resetHighlights();
                 renderBoard(data.board);
-                renderWords(data.words || []);
+                renderWords(data.numWords);
                 setStatus("Game started! Enter a word and click Check.", "success");
             })
             .catch(err => {
@@ -264,7 +285,7 @@
             })
             .then(data => {
                 if (data.correct) {
-                    markWordFound(data.selected);
+                    markWordFound(data.selected, data.positions);
                     setStatus(`"${data.selected}" is correct!`, "success");
                 } else {
                     setStatus(`"${data.selected}" is not in the puzzle.`, "error");

@@ -13,10 +13,7 @@ import org.springframework.web.bind.annotation.*;
 import com.finalproject.lettersearch.service.GameStateManager;
 import com.finalproject.lettersearch.data.Board;
 
-import java.util.EnumMap;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 @RestController
 
@@ -67,17 +64,19 @@ public class GameController {
                 throw new IllegalArgumentException("Theme " + theme + " not found");
             }
         }
-
+        game = null;
         game = new Game(factory);
         game.startGame();
         var board = game.getBoard();
+        int totalWords = board.getWords().size();
         char[][] boardGrid = board.getBoard();
         List<Word> words = board.getWords();
 
         //Update global game state
         GameStateManager gsm = GameStateManager.getInstance();
+        gsm.reset();
         gsm.startNewGame(board, theme);
-        return new GameDTO(boardGrid, words);
+        return new GameDTO(boardGrid, totalWords);
 
     }
     // Check if a selected word exists in the current puzzle and isn't already found.
@@ -88,8 +87,29 @@ public class GameController {
             throw new IllegalStateException("Game has not been started yet.");
         }
 
-        boolean correct = game.wordExists(selected.toUpperCase());
-        return new CheckResultDTO(selected, correct);
+        boolean correct = game.wordExists(selected);
+
+        List<List<Integer>> positions = new ArrayList<>();
+        if (correct){
+            Word foundWord = game.getWords().stream().filter(w ->  w.getWord().equalsIgnoreCase(selected) )
+                    .findFirst().orElse(null);
+
+            if (foundWord != null) {
+                for (int[] pos : foundWord.getPositions()) {
+                    List<Integer> pair = new ArrayList<>();
+                    pair.add(pos[0]);
+                    pair.add(pos[1]);
+                    positions.add(pair);
+
+                }
+
+            }
+
+
+        }
+
+
+        return new CheckResultDTO(selected, correct, positions);
     }
 
     @GetMapping("/state")
@@ -97,6 +117,7 @@ public class GameController {
         if (game == null || game.getBoard() == null) {
             throw new IllegalStateException("Game has not been started yet.");
         }
+
 
         GameStateManager gsm = GameStateManager.getInstance();
 
@@ -108,23 +129,23 @@ public class GameController {
         int score = game.getScoreObserver().getScore();
 
         // From GameStateManager singleton
-        List<Word> remainingWords = gsm.getWordsRemaining();
+        int remainingWordsCount = gsm.getWordsRemaining().size();
 
         char[][] boardGrid = currentBoard != null ? currentBoard.getBoard() : null;
 
-        return new GameStateDTO(boardGrid, foundWords, remainingWords, currentTheme, score);
+        return new GameStateDTO(boardGrid, foundWords, remainingWordsCount, currentTheme, score);
     }
 
     public static class GameStateDTO {
         private final char[][] board;
         private final List<String> foundWords;
-        private final List<Word> remainingWords;
+        private final int remainingWords;
         private final String theme;
         private final int score;
 
         public GameStateDTO(char[][] board,
                             List<String> foundWords,
-                            List<Word> remainingWords,
+                            int remainingWords,
                             String theme,
                             int score) {
             this.board = board;
@@ -142,7 +163,7 @@ public class GameController {
             return foundWords;
         }
 
-        public List<Word> getRemainingWords() {
+        public int getRemainingWords() {
             return remainingWords;
         }
 
@@ -158,26 +179,31 @@ public class GameController {
 
     public static class GameDTO{
         private final char[][] board;
-        private final List<Word> words;
-        public GameDTO(char[][] board, List<Word> words) {
+        private final int numWords;
+        public GameDTO(char[][] board, int numWords) {
             this.board = board;
-            this.words = words;
+            this.numWords = numWords;
         }
         public char[][] getBoard() {
             return board;
         }
-        public List<Word> getWords() {
-            return words;
+        public int getNumWords() {
+            return numWords;
         }
      }
 
     public static class CheckResultDTO {
         private final String selected;
         private final boolean correct;
-
-        public CheckResultDTO(String selected, boolean correct) {
+        private final List<List<Integer>> positions;
+        public CheckResultDTO(String selected, boolean correct, List<List<Integer>> positions) {
             this.selected = selected;
             this.correct = correct;
+            this.positions = positions;
+        }
+
+        public List<List<Integer>> getPositions() {
+            return positions;
         }
 
         public String getSelected() {

@@ -32,12 +32,15 @@ public class Game {
         strategies.add(new DiagonalStrategy());
 
         //set up observers
-        observers.add(new ListObserver());
-        observers.add(new ScoreObserver());
+        observers.add(listObserver);
+        observers.add(scoreObserver);
     }
     public void startGame() {
         this.board = searchFactory.createBoard();
         this.words = board.getWords();
+        for (Word w : words) {
+            w.setFoundState(false);
+        }
     }
 
     public Board getBoard() {

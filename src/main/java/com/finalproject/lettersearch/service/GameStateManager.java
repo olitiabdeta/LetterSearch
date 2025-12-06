@@ -36,7 +36,13 @@ public class GameStateManager {
         wordsFound.clear();
         wordsRemaining.clear();
 
+
+
         if (board != null && board.getWords() != null) {
+            for (Word w : board.getWords()) {
+                w.setFoundState(false);
+            }
+
             wordsRemaining.addAll(board.getWords());
         }
     }
@@ -65,5 +71,12 @@ public class GameStateManager {
 
     public List<Word> getWordsRemaining() {
         return new ArrayList<>(wordsRemaining);
+    }
+
+    public void reset() {
+        this.currentBoard = null;
+        this.currentTheme = null;
+        this.wordsFound.clear();
+        this.wordsRemaining.clear();
     }
 }
