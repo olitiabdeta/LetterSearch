@@ -30,3 +30,5 @@ dependencies {
 tasks.withType<Test> {
     useJUnitPlatform()
 }
+tasks.register("stage") { dependsOn("build") }
+
