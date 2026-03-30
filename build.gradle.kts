@@ -2,7 +2,6 @@ plugins {
     java
     id("org.springframework.boot") version "3.4.11"
     id("io.spring.dependency-management") version "1.1.7"
-    application
 }
 
 group = "com.finalproject"
@@ -32,9 +31,6 @@ tasks.withType<Test> {
     ignoreFailures = true // optional: skip failing tests on Heroku
 }
 
-application {
-    mainClass.set("lettersearch.LetterSearchApplication") // your main class
-}
 
 tasks.register("stage") {
     dependsOn("bootJar") // Heroku uses this to detect stage
